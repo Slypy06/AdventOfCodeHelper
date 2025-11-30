@@ -6,7 +6,7 @@ public class Day12 {
 	
 	public static void main(String[] args) {
 
-		AdventParser p = new AdventParser("day1.txt");
+		AdventParser p = new AdventParser("day12.txt");
 		
 	}
 	
