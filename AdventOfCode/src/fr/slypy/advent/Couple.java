@@ -43,5 +43,13 @@ public class Couple<K, V> {
 		return '(' + first.toString() + ',' + second.toString() + ')';
 		
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean equals(Object c) {
+		
+		return c instanceof Couple couple && couple.getFirst().equals(first) && couple.getSecond().equals(second);
+		
+	}
 
 }

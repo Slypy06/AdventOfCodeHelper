@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Helper {
@@ -188,7 +189,7 @@ public class Helper {
 
 	}
 	
-	public static List<Couple<Integer, Integer>> aStar(List<List<Integer>> maze, Couple<Integer, Integer> start, Couple<Integer, Integer> goal, BiFunction<Couple<Integer, Integer>, Couple<Integer, Integer>, Double> heuristic, List<Couple<Integer, Integer>> directions, Function<Couple<Integer, Integer>, Double> costFunction) {
+	public static List<Couple<Integer, Integer>> aStar(List<List<Integer>> maze, Couple<Integer, Integer> start, Couple<Integer, Integer> goal, BiFunction<Couple<Integer, Integer>, Couple<Integer, Integer>, Double> heuristic, List<Couple<Integer, Integer>> directions, BiFunction<Couple<Integer, Integer>, Node, Double> costFunction) {
 
 		int rows = maze.size();
 		int cols = maze.get(0).size();
@@ -231,7 +232,7 @@ public class Helper {
 
 				if (nx >= 0 && nx < rows && ny >= 0 && ny < cols && maze.get(nx).get(ny) == 0 && !closed[nx][ny]) {
 
-					double gCost = current.g + costFunction.apply(dir);
+					double gCost = current.g + costFunction.apply(dir, current);
 					Couple<Integer, Integer> neighborPos = new Couple<>(nx, ny);
 					double hCost = heuristic.apply(neighborPos, goal);
 					Node neighbor = new Node(neighborPos, current, gCost, hCost);
@@ -253,6 +254,77 @@ public class Helper {
 
 		return Collections.emptyList(); // No path found
 
+	}
+	
+	public static <T> void printMap(List<List<T>> map, Consumer<T> elemPrinter) {
+		
+		for(List<T> line : map) {
+			
+			line.forEach(elemPrinter);
+			System.out.println();
+			
+		}
+		
+	}
+	
+	public static <T> Couple<Integer, Integer> searchFirst(List<List<T>> map, T elem) {
+
+		for(List<T> line : map) {
+			
+			for(T t : line) {
+				
+				if(t.equals(elem)) {
+					
+					return new Couple<>(map.indexOf(line), line.indexOf(t));
+					
+				}
+				
+			}
+			
+		}
+		
+		return null;
+		
+	}
+	
+	public static <T> List<Couple<Integer, Integer>> search(List<List<T>> map, T elem) {
+
+		List<Couple<Integer, Integer>> res = new ArrayList<>();
+		
+		for(List<T> line : map) {
+			
+			for(T t : line) {
+				
+				if(t.equals(elem)) {
+					
+					res.add(new Couple<>(map.indexOf(line), line.indexOf(t)));
+					
+				}
+				
+			}
+			
+		}
+		
+		return res;
+		
+	}
+	
+	public static <K, V> List<List<V>> mapMap(List<List<K>> map, Function<K, V> func) {
+		
+		List<List<V>> res = new ArrayList<>();
+		
+		for(List<K> line : map) {
+			
+			List<V> newLine = new ArrayList<>();
+			
+			line.forEach(e -> newLine.add(func.apply(e)));
+			
+			res.add(newLine);
+			
+		}
+		
+		return res;
+		
 	}
 
 	public static class Node {
