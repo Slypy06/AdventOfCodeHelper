@@ -329,7 +329,7 @@ public class AdventParser {
 	
 	public void autoPrepareInput() {
 		
-		editInput(string -> string.replaceAll(",", " , ").replaceAll("=", " = ").replaceAll(":", " : "));
+		editInput(string -> string.replaceAll(",", " , ").replaceAll("=", " = ").replaceAll(":", " : ").replaceAll("-", " - "));
 		
 	}
 	

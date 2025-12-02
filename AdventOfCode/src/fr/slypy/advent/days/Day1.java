@@ -9,7 +9,9 @@ public class Day1 {
 	
 	public static void main(String[] args) {
 
-		AdventParser p = new AdventParser("day1.txt"); 
+		AdventParser p = new AdventParser("day1.txt"); //lecture avec une librairie que j'ai dev dimanche pour me faciliter la tache
+		
+		//***************************************************************************************************************************
 		
 		List<Couple<Character, Integer>> l = p.processLines(line -> {
 			
@@ -18,10 +20,10 @@ public class Day1 {
 			
 			return new Couple<Character, Integer>(c,i);
 			
-		});
+		}); //transformation de chaque ligne en un tuple caractère - entier
 		
-		System.out.println("Part 1 : " + part1(l));
-		System.out.println("Part 2 : " + part2(l));
+		System.out.println("Part 1 : " + part1(l)); //calculs avec ma liste de tuple
+		System.out.println("Part 2 : " + part2(l)); //calculs avec ma liste de tuple
 		
 	}
 	

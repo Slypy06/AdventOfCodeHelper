@@ -4,7 +4,6 @@ import java.util.List;
 
 import fr.slypy.advent.AdventParser;
 import fr.slypy.advent.Couple;
-import fr.slypy.advent.Helper;
 
 public class Day2 {
 
@@ -12,55 +11,56 @@ public class Day2 {
 
 		AdventParser p = new AdventParser("day2.txt");
 		
-		Couple<List<List<Character>>,Couple<Integer,Integer>> res = p.getCharacterMap();
-		List<List<Character>> map = res.getFirst();
-		Couple<Integer, Integer> dim = res.getSecond();
+		p.autoPrepareInput();
 		
-		List<List<Integer>> aStarMap = Helper.mapMap(map, c -> c == '#' ? 1 : 0);
-		List<Couple<Integer, Integer>> path = Helper.aStar(aStarMap, Helper.searchFirst(map, 'S'), Helper.searchFirst(map, 'E'), Helper.DijkstraHeuristic, Helper.StandartDirections, (dir, node) -> {
+		List<Couple<Long,Long>> l = p.getLongCoupleInlined();
+
+		System.out.println("Part 1 : " + part1(l));
+		System.out.println("Part 2 : " + part2(l));
 		
+	}
+	
+	public static String part1(List<Couple<Long,Long>> input) {
+		
+		long sum = 0;
+		
+		for(Couple<Long, Long> c : input) {
 			
-			Couple<Integer, Integer> prevDir = new Couple<>(-1, 0);
-			
-			if(node.parent != null)
-				prevDir = new Couple<>(node.pos.getFirst() - node.parent.pos.getFirst(), node.pos.getFirst() - node.parent.pos.getFirst());
-			
-			System.out.println("Prevdir : " + prevDir + " | dir : " + dir);
-			
-			if(prevDir.equals(dir))
-				return 1.0d;
-			
-			if(prevDir.equals(new Couple<>(-dir.getFirst(), -dir.getSecond())))
-				return 2001.0d;
+			for(long l = c.getFirst(); l <= c.getSecond(); l++) {
 				
-			return 1001.0d;
-			
-		});
-		
-		Helper.printMap(map, System.out::print);
-		
-		System.out.println();
-		
-		for(int i = 0; i < map.size(); i++) {
-			
-			List<Character> line = map.get(i);
-			
-			for(int j = 0; j < line.size(); j++) {
-				
-				Character c = line.get(j);
-				
-				if(c == '.' && path.contains(new Couple<Integer, Integer>(i, j)))
-					c = '$';
-				
-				System.out.print(c);
+				if(("" + l).matches("^(\\d+)\\1{2}$")) {
+
+					sum+=l;
+					
+				}
 				
 			}
-			
-			System.out.println();
-			
+
 		}
 		
-		System.out.println(path.get(0));
+		return "" + sum;
+		
+	}
+	
+	public static String part2(List<Couple<Long,Long>> input) {
+		
+		long sum = 0;
+		
+		for(Couple<Long, Long> c : input) {
+			
+			for(long l = c.getFirst(); l <= c.getSecond(); l++) {
+				
+				if(("" + l).matches("^(\\d+)\\1+$")) {
+
+					sum+=l;
+					
+				}
+				
+			}
+
+		}
+		
+		return "" + sum;
 		
 	}
 	

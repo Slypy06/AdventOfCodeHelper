@@ -122,7 +122,7 @@ public class Helper {
 
 	}
 
-	public static List<Couple<Integer, Integer>> aStar(List<List<Integer>> maze, Couple<Integer, Integer> start, Couple<Integer, Integer> goal, BiFunction<Couple<Integer, Integer>, Couple<Integer, Integer>, Double> heuristic, List<Couple<Integer, Integer>> directions) {
+	public static Couple<List<Couple<Integer, Integer>>, Double> aStar(List<List<Integer>> maze, Couple<Integer, Integer> start, Couple<Integer, Integer> goal, BiFunction<Couple<Integer, Integer>, Couple<Integer, Integer>, Double> heuristic, List<Couple<Integer, Integer>> directions) {
 
 		int rows = maze.size();
 		int cols = maze.get(0).size();
@@ -130,7 +130,7 @@ public class Helper {
 		PriorityQueue<Node> open = new PriorityQueue<>(Comparator.comparingDouble(Node::f));
 		boolean[][] closed = new boolean[rows][cols];
 
-		Node startNode = new Node(start, null, 0, heuristic.apply(start, goal));
+		Node startNode = new Node(start, null, 0, heuristic.apply(start, goal), new Couple<>(0, 0));
 		open.add(startNode);
 
 		while (!open.isEmpty()) {
@@ -139,6 +139,8 @@ public class Helper {
 
 			if (current.pos.getFirst().equals(goal.getFirst()) && current.pos.getSecond().equals(goal.getSecond())) {
 
+				double cost = current.g;
+				
 				// Reconstruct path
 				List<Couple<Integer, Integer>> path = new ArrayList<>();
 
@@ -150,7 +152,7 @@ public class Helper {
 				}
 
 				Collections.reverse(path);
-				return path;
+				return new Couple<>(path, cost);
 
 			}
 
@@ -168,7 +170,7 @@ public class Helper {
 					double gCost = current.g + 1; // assuming cost to move = 1
 					Couple<Integer, Integer> neighborPos = new Couple<>(nx, ny);
 					double hCost = heuristic.apply(neighborPos, goal);
-					Node neighbor = new Node(neighborPos, current, gCost, hCost);
+					Node neighbor = new Node(neighborPos, current, gCost, hCost, dir);
 
 					boolean skip = open.stream().anyMatch(
 							n -> n.pos.getFirst().equals(nx) && n.pos.getSecond().equals(ny) && n.f() <= neighbor.f());
@@ -185,19 +187,19 @@ public class Helper {
 
 		}
 
-		return Collections.emptyList(); // No path found
+		return new Couple<List<Couple<Integer, Integer>>, Double>(Collections.emptyList(), 0.0d); // No path found
 
 	}
 	
-	public static List<Couple<Integer, Integer>> aStar(List<List<Integer>> maze, Couple<Integer, Integer> start, Couple<Integer, Integer> goal, BiFunction<Couple<Integer, Integer>, Couple<Integer, Integer>, Double> heuristic, List<Couple<Integer, Integer>> directions, BiFunction<Couple<Integer, Integer>, Node, Double> costFunction) {
+	public static Couple<List<Couple<Integer, Integer>>, Double> aStar(List<List<Integer>> maze, Couple<Integer, Integer> start, Couple<Integer, Integer> goal, BiFunction<Couple<Integer, Integer>, Couple<Integer, Integer>, Double> heuristic, List<Couple<Integer, Integer>> directions, BiFunction<Couple<Integer, Integer>, Node, Double> costFunction) {
 
 		int rows = maze.size();
 		int cols = maze.get(0).size();
 
 		PriorityQueue<Node> open = new PriorityQueue<>(Comparator.comparingDouble(Node::f));
-		boolean[][] closed = new boolean[rows][cols];
+		boolean[][][] closed = new boolean[rows][cols][directions.size()];
 
-		Node startNode = new Node(start, null, 0, heuristic.apply(start, goal));
+		Node startNode = new Node(start, null, 0, heuristic.apply(start, goal), new Couple<>(0, 0));
 		open.add(startNode);
 
 		while (!open.isEmpty()) {
@@ -206,6 +208,8 @@ public class Helper {
 
 			if (current.pos.getFirst().equals(goal.getFirst()) && current.pos.getSecond().equals(goal.getSecond())) {
 
+				double cost = current.g;
+				
 				// Reconstruct path
 				List<Couple<Integer, Integer>> path = new ArrayList<>();
 
@@ -217,25 +221,38 @@ public class Helper {
 				}
 
 				Collections.reverse(path);
-				return path;
+				return new Couple<>(path, cost);
 
 			}
 
 			int x = current.pos.getFirst();
 			int y = current.pos.getSecond();
-			closed[x][y] = true;
+			
+			if(current.dir.equals(new Couple<>(0,0))) {
+				
+				for(int i = 0; i < directions.size(); i++) {
+					
+					closed[x][y][i] = true;
+					
+				}
+				
+			} else {
+				
+				closed[x][y][directions.indexOf(current.dir)] = true;
+				
+			}
 
 			for (Couple<Integer, Integer> dir : directions) {
 
 				int nx = x + dir.getFirst();
 				int ny = y + dir.getSecond();
 
-				if (nx >= 0 && nx < rows && ny >= 0 && ny < cols && maze.get(nx).get(ny) == 0 && !closed[nx][ny]) {
+				if (nx >= 0 && nx < rows && ny >= 0 && ny < cols && maze.get(nx).get(ny) == 0 && !closed[nx][ny][directions.indexOf(dir)]) {
 
-					double gCost = current.g + costFunction.apply(dir, current);
+					double gCost = current.g + costFunction.apply(dir, current); // assuming cost to move = 1
 					Couple<Integer, Integer> neighborPos = new Couple<>(nx, ny);
 					double hCost = heuristic.apply(neighborPos, goal);
-					Node neighbor = new Node(neighborPos, current, gCost, hCost);
+					Node neighbor = new Node(neighborPos, current, gCost, hCost, dir);
 
 					boolean skip = open.stream().anyMatch(
 							n -> n.pos.getFirst().equals(nx) && n.pos.getSecond().equals(ny) && n.f() <= neighbor.f());
@@ -252,7 +269,7 @@ public class Helper {
 
 		}
 
-		return Collections.emptyList(); // No path found
+		return new Couple<List<Couple<Integer, Integer>>, Double>(Collections.emptyList(), 0.0d); // No path found
 
 	}
 	
@@ -333,13 +350,15 @@ public class Helper {
 		public Node parent;
 		public double g; // Cost from start to this node
 		public double h; // Heuristic cost to goal
+		public Couple<Integer, Integer> dir;
 
-		public Node(Couple<Integer, Integer> pos, Node parent, double g, double h) {
+		public Node(Couple<Integer, Integer> pos, Node parent, double g, double h, Couple<Integer, Integer> dir) {
 
 			this.pos = pos;
 			this.parent = parent;
 			this.g = g;
 			this.h = h;
+			this.dir = dir;
 
 		}
 
