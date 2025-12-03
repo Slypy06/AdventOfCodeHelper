@@ -1,6 +1,7 @@
 package fr.slypy.advent.days;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import fr.slypy.advent.AdventParser;
@@ -13,15 +14,15 @@ public class Day3 {
 		
 		List<List<Integer>> l = p.processLines(line -> {
 			
-			List<Integer> lin = new ArrayList<>();
+			List<Integer> ret = new ArrayList<>();
 			
 			for(char c : line.toCharArray()) {
 				
-				lin.add(Integer.parseInt("" + c));
+				ret.add(Integer.parseInt("" + c));
 				
 			}
 			
-			return lin;
+			return ret;
 			
 		});
 		
@@ -37,26 +38,7 @@ public class Day3 {
 		
 		for(List<Integer> line : input) {
 			
-			int max = 0;
-			
-			for(int i = 0; i < line.size(); i++) {
-				
-				for(int j = 0; j < line.size(); j++) {
-					
-					if(j == i)
-						continue;
-					
-					if(line.get(i < j ? i : j)*10+line.get(i < j ? j : i) > max) {
-						
-						max = line.get(i < j ? i : j)*10+line.get(i < j ? j : i);
-						
-					}
-					
-				}
-				
-			}
-			
-			sum += max;
+			sum += maximise(line, 2);
 			
 		}
 		
@@ -70,33 +52,22 @@ public class Day3 {
 		
 		for(List<Integer> line : input) {
 			
-			String integer = "";
-			int lastI = 0;
-			
-			for(int x = 0; x < 12; x++) {
-			
-				int max = lastI;
-
-				for(int i = lastI; i <= line.size() - (12-x); i++) {
-					
-					if(line.get(i) > line.get(max)) {
-						
-						max = i;
-						
-					}
-					
-				}
-				
-				integer += line.get(max);
-				lastI = max + 1;
-			
-			}
-			
-			sum += Long.parseLong(integer);
+			sum += maximise(line, 12);
 			
 		}
 		
 		return "" + sum;
+		
+	}
+	
+	public static long maximise(List<Integer> list, int numbers) {
+		
+		if(numbers == 1)
+			return Collections.max(list);
+		
+		int i = Collections.max(list.subList(0, list.size() - (numbers - 1)));
+		
+		return Long.parseLong("" + i + "" + maximise(list.subList(list.indexOf(i) + 1, list.size()), numbers-1));
 		
 	}
 	
