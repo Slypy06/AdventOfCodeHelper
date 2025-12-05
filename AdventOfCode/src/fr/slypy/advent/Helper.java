@@ -273,6 +273,23 @@ public class Helper {
 
 	}
 	
+	public static <T> List<Couple<Integer, Integer>> getNeighbours(List<List<T>> map, Couple<Integer, Integer> pos) {
+		
+		List<Couple<Integer, Integer>> neighbours = new ArrayList<>();
+		
+		if(pos.getFirst() > 0 && pos.getSecond() > 0) neighbours.add(new Couple<>(pos.getFirst() - 1, pos.getSecond() - 1));
+		if(pos.getFirst() > 0) neighbours.add(new Couple<>(pos.getFirst() - 1, pos.getSecond()));
+		if(pos.getFirst() > 0 && pos.getSecond() < map.get(0).size() - 1) neighbours.add(new Couple<>(pos.getFirst() - 1, pos.getSecond() + 1));
+		if(pos.getSecond() > 0) neighbours.add(new Couple<>(pos.getFirst(), pos.getSecond() - 1));
+		if(pos.getSecond() < map.get(0).size() - 1) neighbours.add(new Couple<>(pos.getFirst(), pos.getSecond() + 1));
+		if(pos.getFirst() < map.size() - 1 && pos.getSecond() > 0) neighbours.add(new Couple<>(pos.getFirst() + 1, pos.getSecond() - 1));
+		if(pos.getFirst() < map.size() - 1) neighbours.add(new Couple<>(pos.getFirst() + 1, pos.getSecond()));
+		if(pos.getFirst() < map.size() - 1 && pos.getSecond() < map.get(0).size() - 1) neighbours.add(new Couple<>(pos.getFirst() + 1, pos.getSecond() + 1));
+		
+		return neighbours;
+		
+	}
+	
 	public static <T> void printMap(List<List<T>> map, Consumer<T> elemPrinter) {
 		
 		for(List<T> line : map) {
